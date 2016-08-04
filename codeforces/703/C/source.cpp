@@ -51,6 +51,7 @@ void solveCase()
   curr = rightBottomIndex;
   int waitingIndex = -1;
   int beforeX = 0;
+  beforeY = 0;
   double answer = 0;
   do {
     if ((double)vertices[curr].x / V > ((double)beforeX / V) + (double)(vertices[curr].y - beforeY) / U) {
