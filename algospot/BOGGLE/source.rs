@@ -2,21 +2,40 @@ use std::io;
 
 fn read_integer() -> i32 {
     let mut buf = String::new();
-    io::stdin().read_line(&mut buf);
+    io::stdin().read_line(&mut buf).expect("failed to read a line");
     buf.trim().parse::<i32>().expect(&format!("failed to read an integer from: {}", buf))
 }
 
 fn read_string() -> String {
     let mut buf = String::new();
-    io::stdin().read_line(&mut buf);
+    io::stdin().read_line(&mut buf).expect("failed to read a line");
     buf.trim().to_string()
 }
 
-// TODO
+fn is_connected(i: &i8, j: &i8, dynamic: &[[bool; 5]; 5]) -> bool {
+    for ii in i - 1 .. i + 2 {
+        for jj in j - 1 .. j + 2 {
+            if ii == *i && jj == *j {
+                continue;
+            } else if ii < 0 || jj < 0 {
+                continue;
+            } else if ii >= 5 || jj >= 5 {
+                continue;
+            }
+
+            if dynamic[ii as usize][jj as usize] {
+                return true;
+            }
+        }
+    }
+
+    false
+}
+
 fn has_word(board: &[[char; 5]; 5], word: &str) -> bool {
     assert!(word.len() <= 10, "{}", word);
 
-    let mut dynamic = [[[false; 10]; 5]; 5];
+    let mut dynamic = [[[false; 5]; 5]; 10];
 
     for (k, ch) in word.chars().enumerate() {
         for i in 0..5 {
@@ -29,45 +48,17 @@ fn has_word(board: &[[char; 5]; 5], word: &str) -> bool {
                     if k == 0 {
                         true
                     } else {
-                        let mut ret = false;
-                        for ii in i - 1 .. i + 1 {
-                            for jj in j - 1 .. j + 1 {
-                                if ii < 0 || jj < 0 || ii >= 5 || jj >= 5 {
-                                    continue;
-                                } else if ii == i && jj == j {
-                                    continue;
-                                }
-
-                                // println!("dynamic[{}][{}][{}] == {}", ii, jj, k, dynamic[ii][jj][k - 1]);
-                                if (ch == 'R') {
-                                    println!("ii = {} jj = {}", ii, jj);
-                                }
-                                if dynamic[ii][jj][k - 1] == true {
-                                    ret = true;
-                                }
-                            }
-                        }
-                        ret
+                        is_connected(&(i as i8), &(j as i8), &dynamic[k - 1])
                     }
                 };
                 
-                
-                // println!("found={} k={} len={}", found, k, word.len());
                 if found {
-                    dynamic[i][j][k] = true;
+                    dynamic[k][i][j] = true;
                     if k + 1 == word.len() {
                         return true;
                     }
                 }
             }
-        }
-
-        println!("word ={} k == {}", word, k);
-        for i in 0..5 {
-            for j in 0..5 {
-                print!("{} ", dynamic[i][j][k]);
-            }
-            println!("");
         }
     }
 
@@ -86,7 +77,7 @@ fn solve() {
     }
 
     let num_of_words = read_integer();
-    for i in 0..num_of_words {
+    for _i in 0..num_of_words {
         let word = read_string();
         match has_word(&board, &word) {
             true => println!("{} YES", word),
